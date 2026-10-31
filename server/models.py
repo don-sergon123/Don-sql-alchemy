@@ -18,6 +18,12 @@ class Exercise(db.Model):
         'WorkoutExercise', back_populates='exercise', cascade='all, delete-orphan')
     workouts = association_proxy('workout_exercises', 'workout')
 
+    @validates('name')
+    def validate_name(self, key, name):
+        if not name or not name.strip():
+            raise ValueError("Exercise name cannot be blank.")
+        return name
+
 
 class Workout(db.Model):
     __tablename__ = 'workouts'
@@ -31,6 +37,12 @@ class Workout(db.Model):
     workout_exercises = db.relationship(
         'WorkoutExercise', back_populates='workout', cascade='all, delete-orphan')
     exercises = association_proxy('workout_exercises', 'exercise')
+
+    @validates('duration_minutes')
+    def validate_duration(self, key, duration):
+        if duration is None or duration <= 0:
+            raise ValueError("Duration must be greater than zero.")
+        return duration
 
 
 class WorkoutExercise(db.Model):
@@ -48,3 +60,8 @@ class WorkoutExercise(db.Model):
     # Relationships
     workout = db.relationship('Workout', back_populates='workout_exercises')
     exercise = db.relationship('Exercise', back_populates='workout_exercises')
+
+    __table_args__ = (
+        db.CheckConstraint('sets > 0', name='check_sets_positive'),
+        db.CheckConstraint('reps >= 0', name='check_reps_non_negative'),
+    )
