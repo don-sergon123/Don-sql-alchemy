@@ -31,3 +31,20 @@ class Workout(db.Model):
     workout_exercises = db.relationship(
         'WorkoutExercise', back_populates='workout', cascade='all, delete-orphan')
     exercises = association_proxy('workout_exercises', 'exercise')
+
+
+class WorkoutExercise(db.Model):
+    __tablename__ = 'workout_exercises'
+
+    id = db.Column(db.Integer, primary_key=True)
+    workout_id = db.Column(db.Integer, db.ForeignKey(
+        'workouts.id'), nullable=False)
+    exercise_id = db.Column(db.Integer, db.ForeignKey(
+        'exercises.id'), nullable=False)
+    reps = db.Column(db.Integer, nullable=False)
+    sets = db.Column(db.Integer, nullable=False)
+    duration_seconds = db.Column(db.Integer, nullable=False)
+
+    # Relationships
+    workout = db.relationship('Workout', back_populates='workout_exercises')
+    exercise = db.relationship('Exercise', back_populates='workout_exercises')
